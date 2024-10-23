@@ -1,0 +1,60 @@
+@media (min-width: 900px) {
+    section {
+        max-width: 1236px;
+        padding-top: 64px;
+        padding-bottom: 64px;
+    }
+}
+ul
+{
+list-style: none;
+padding: 0;
+margin: 0;
+}
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 30px;
+  }
+  
+/* Stil pentru card */
+.card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+/* Container imagine cu aspect ratio A4 */
+.card-img {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1.414; /* Raport A4 */
+    background-color: #f5f5f5; /* Fundal pentru umplerea spațiului */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Ascunde orice parte a imaginii care iese din container */
+}
+
+/* Imaginea centrată în container */
+.card-img img {
+    width: 100%; /* Asigură că imaginea respectă proporțiile */
+    height: auto; /* Înălțimea se ajustează automat la container */
+    object-fit: contain; /* Imaginea este conținută complet în container */
+    display: block;
+    max-width: 100%; /* Asigură că imaginea nu depășește lățimea containerului */
+}
+
+
+.card-details {
+    height:80px;
+}
