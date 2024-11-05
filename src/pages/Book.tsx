@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import Card from "../components/ui/Card";
+import { PagesDTO } from "../types/AllPages";
 
 const Book: React.FC = () => {
     const { slug } = useParams<{ slug: string }>(); // Extract slug from the URL
@@ -31,13 +33,37 @@ const Book: React.FC = () => {
         return <p>Book not found.</p>;
     }
     return (
+        <>
         <div className="single-book">
             <h1>{book.title}</h1>
             {book.featured_image && (
-                <img src={book.featured_image} alt={book.title} />
+                <div style={{width:'100%', maxWidth:'620px'}}>
+                <div className="card-img">
+                    <img
+                        src={book.featured_image}
+                        alt={book.title}
+                        className="card-thumbnail"
+                    />
+                </div>
+                </div>
             )}
             <div dangerouslySetInnerHTML={{ __html: book.content }} />
         </div>
+        <section>
+
+            <div className="book-list">
+                <ul className="cards">
+                    {book.related_pages.map((relatedBook: PagesDTO) => {
+                        return (
+                            <li key={relatedBook.id} className="card-item">
+                                <Card page={relatedBook} route="pages/page" />
+                            </li>
+                        )
+                    })}
+                </ul>
+            </div>
+        </section>
+        </>
     );
 };
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 
 const Page: React.FC = () => {
     const { slug } = useParams<{ slug: string }>(); // Get slug from the URL
@@ -38,11 +38,22 @@ const Page: React.FC = () => {
     console.log('bookPage', page)
     return (
         <div className="single-book-page">
+            <Link to="/"> Home</Link>
             <h1>{page.title}</h1>
+            <div>
+            <div style={{width:'100%', maxWidth:'620px'}}>
             {page.featured_image && (
-                <img src={page.featured_image} alt={page.title} />
+                <img 
+                width="100%"
+                height="auto"
+                src={page.featured_image} alt={page.title} />
             )}
+            </div>
+            <div>
             <div dangerouslySetInnerHTML={{ __html: page.content }} />
+            </div>
+            </div>
+
             {/* Add other book page details here */}
         </div>
     );
