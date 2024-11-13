@@ -2,6 +2,7 @@ export interface PagesDTO {
     content:string;
     excerpt:string;
     featured_image:string;
+    print_image:string;
     title:string;
     id:number;
     slug:string;
