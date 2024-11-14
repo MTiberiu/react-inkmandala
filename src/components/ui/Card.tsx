@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
 import { PagesDTO } from '../../types/AllPages';
-import printJS from 'print-js';
+import { usePrint } from '../../contexts/PrintContext';
 
 interface PageProps {
     page: PagesDTO;
@@ -9,30 +9,10 @@ interface PageProps {
 }
 const Card:React.FC<PageProps> = ({page, route}) => {
     const {title, featured_image, print_image, slug } = page;
-    const handlePrintPDF = () => {
-        printJS({
-          printable: print_image ,
-          type: 'image',
-          style: `
-            @page { margin: 0; }
-    img {
-      width: 100%;
-      margin: 0;
-      display: block;
-      padding: 0;
+    const {handlePrintPDF} = usePrint();
+    const handlePrint = () => {
+        handlePrintPDF(print_image) 
     }
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-  `
-        });
-      };
 
   return (
 
@@ -51,7 +31,7 @@ const Card:React.FC<PageProps> = ({page, route}) => {
         <h3 className="card-title">{title || "Untitled"}</h3>
       </div>
       </Link>
-      <button onClick={handlePrintPDF}>Printează PDF</button>
+      {print_image ? <button onClick={handlePrint}>Printează PDF</button> : null}
     </div>
    
   )

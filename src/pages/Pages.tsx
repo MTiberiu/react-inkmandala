@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom'; // Importăm useSearchParams
+import { useSearchParams } from 'react-router-dom'; 
 import Card from '../components/ui/Card';
 import { PagesDTO } from '../types/AllPages';
 
@@ -38,8 +38,7 @@ const Pages = () => {
 
     return (
         <section>
-            <Link to="/"> Home</Link>
-            <div className="book-list">
+               <div className="book-list">
                 <ul className="cards">
                     {pages.map((page) => (
                         <li key={page.id} className="card-item">

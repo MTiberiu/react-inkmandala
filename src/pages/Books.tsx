@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import Card from '../components/ui/Card'
 import { PagesDTO } from '../types/AllPages'
 
@@ -21,7 +20,6 @@ const Books = () => {
 
     return (
         <section>
-            <Link to="/"> Home</Link>
             <div className="book-list">
                 <ul className="cards">
                     {books.map((book) => {
