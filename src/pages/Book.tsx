@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 import Card from "../components/ui/Card";
 import { PagesDTO } from "../types/AllPages";
@@ -14,7 +15,7 @@ const Book: React.FC = () => {
     const { handlePrintAllPDF } = usePrint();
 
     const exportImagesToPDF = async () => {
-        const allPages = book.related_pages.map((relatedBook) => relatedBook.print_image);
+        const allPages = book.related_pages.map((relatedBook: any) => relatedBook.print_image);
       
         // Creează un document PDF în format A4 (210x297 mm)
         const pdf = new jsPDF('p', 'mm', 'a4');
@@ -96,6 +97,12 @@ function printAllPages() {
 
     return (
         <>
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>{book.title} - Free Mandala Coloring Book</title>
+        {/* <link rel="canonical" href="http://mysite.com/example" /> */}
+      </Helmet>
+
             <div className="single-book">
                 <h1>{book.title}</h1>
                 <HTMLFlipBook
@@ -133,8 +140,9 @@ function printAllPages() {
                     </div>
                     {book.related_pages.flatMap((relatedBook: PagesDTO, index: number) => [
                         <div style={{ background: 'white' }}>
-                            <div key={`${index}-title`} className="page" style={{ width: '100%', maxWidth: '640px', display: 'flex', height: '100%', justifyContent: 'center', alignContent: 'center',background: 'white' }}>
-                                <h2 className="page-title">{relatedBook.title}</h2>
+                            <div key={`${index}-title`} className="page" style={{ width: '100%', maxWidth: '640px', display: 'flex', flexDirection:'column', alignItems:'center', height: '100%', justifyContent: 'center', alignContent: 'center',background: 'white' }}>
+                                <h2 className="page-title" style={{fontSize: '32px'}}>{relatedBook.title}</h2>
+                                <p className="page-content" style={{width:"50%", fontSize:"24px"}}>{relatedBook.excerpt}</p>
                             </div>
                         </div>,
                         <div style={{ background: 'white' }}>

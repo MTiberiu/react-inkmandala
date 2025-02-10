@@ -11,10 +11,13 @@
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.0.0",
+    "@types/react-helmet": "^6.1.11",
     "jspdf": "^2.5.2",
     "print-js": "^1.6.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-helmet": "^6.1.0",
+    "react-helmet-async": "^2.0.5",
     "react-pageflip": "^2.0.3",
     "react-router-dom": "^6.26.2",
     "react-to-print": "^3.0.2"
