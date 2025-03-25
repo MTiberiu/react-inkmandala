@@ -47,7 +47,7 @@ const HomePage: React.FC = () => {
       <Helmet>
         <meta charSet="utf-8" />
         <title> Free Premium Mandala Coloring Books & Pages</title>
-        {/* <link rel="canonical" href="http://mysite.com/example" /> */}
+        <link rel="canonical" href="https://inkmandala.com" />
       </Helmet>
 
 
@@ -59,7 +59,7 @@ const HomePage: React.FC = () => {
         <section>
           <PagesList bookPages={allPosts.data.book_pages} />
         </section>
-        <Link to="./pages/">More Books </Link>
+        <Link to="./pages/">More Pages </Link>
       </div>
     </>
   );

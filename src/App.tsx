@@ -11,6 +11,7 @@ import './styles/styles.css'
 import './App.css'
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import NotFound from "./pages/NotFound";
 
 const App: React.FC = () => {
   return (
@@ -26,6 +27,7 @@ const App: React.FC = () => {
                 <Route path="/books/book/:slug" element={<Book />} />
                 <Route path="/pages/" element={<Pages />} />
                 <Route path="/pages/page/:slug" element={<Page />} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
             <Footer /> {/* Afișează footer-ul pe toate paginile */}

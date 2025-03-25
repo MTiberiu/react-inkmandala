@@ -72,9 +72,11 @@ const Page: React.FC = () => {
   function downloadFile() {
     window.open(page.print_image)
   }
+
+  const canonical = `https://inkmandala.com/pages/page/${page.slug}`
   return (
     <>
-      <MetaHead title={page.title}  seoTitle='Mandala Coloring Page - Free pdf printable sheet to color'/>
+      <MetaHead title={page.title}  canonical={canonical} seoTitle='Mandala Coloring Page - Free pdf printable sheet to color'/>
       <div>
         <div className="single-book">
           <h1>{page.title}</h1>
@@ -94,8 +96,6 @@ const Page: React.FC = () => {
             <button onClick={() => downloadFile()}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-file-type-png"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" /><path d="M20 15h-1a2 2 0 0 0 -2 2v2a2 2 0 0 0 2 2h1v-3" /><path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" /><path d="M11 21v-6l3 6v-6" /></svg></button>
             <button onClick={() => handlePrint()}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-file-type-pdf"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" /><path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" /><path d="M17 18h2" /><path d="M20 15h-3v6" /><path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z" /></svg></button>
           </div>
-          test
-          <div className="fb-comments" data-href="http://localhost:5173/pages/page/shadows-of-doubt" data-width="500" data-numposts="5"></div>
 
           {/* Add other book page details here */}
         </div>

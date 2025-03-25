@@ -45,7 +45,7 @@
 /* styles.css */
 .img-container {
     width: 100%;
-    max-width: 420px;
+    max-width:  640px;
     aspect-ratio: 1 / 1.414; /* Raport A4 */
     overflow: hidden;
     background-color: white;
