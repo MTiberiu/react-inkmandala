@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { usePrint } from '../contexts/PrintContext';
 import './Page.css';
 import onepx from '../assets/1px.png'; // 
+import CanvasWrapper from "../components/colorapp/CanvasWrapper"
 
 
 const Page: React.FC = () => {
@@ -40,8 +41,6 @@ const Page: React.FC = () => {
   if (loading) {
     return (
       <>
-
-
         <div>
           <div className="single-book">
             <h1 className="loading-skeleton loading-title">Loading</h1>
@@ -77,6 +76,9 @@ const Page: React.FC = () => {
   return (
     <>
       <MetaHead title={page.title}  canonical={canonical} seoTitle='Mandala Coloring Page - Free pdf printable sheet to color'/>
+      <div style={{ width: '100%', height: '100vh' }}>
+      <CanvasWrapper imageUrl={page.featured_image_sizes["2048x2048"]} />
+    </div>
       <div>
         <div className="single-book">
           <h1>{page.title}</h1>
