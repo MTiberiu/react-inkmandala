@@ -77,7 +77,7 @@ const Page: React.FC = () => {
     <>
       <MetaHead title={page.title}  canonical={canonical} seoTitle='Mandala Coloring Page - Free pdf printable sheet to color'/>
       <div style={{ width: '100%', height: '100vh' }}>
-      <CanvasWrapper imageUrl={page.featured_image_sizes["2048x2048"]} />
+      <CanvasWrapper imageUrl={page.featured_image_sizes["1536x1536"]} />
     </div>
       <div>
         <div className="single-book">

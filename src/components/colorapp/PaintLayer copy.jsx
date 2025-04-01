@@ -7,7 +7,7 @@ const COLORS = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#A66DD4']
 
 // 🧠 FloodTask = un flood animat independent
 class FloodTask {
-  constructor(sharedImageData, ctx, x, y, fillColor, texture, batchSize = 20) {
+  constructor(sharedImageData, ctx, x, y, fillColor, texture, batchSize = 300) {
     this.ctx = ctx
     this.texture = texture
     this.batchSize = batchSize
@@ -25,16 +25,11 @@ class FloodTask {
     this.enqueue = (px, py) => {
       const dx = px - x
       const dy = py - y
-    
-      const distance = Math.sqrt(dx * dx + dy * dy)
-      const jitter = Math.random() * 5             // neregularitate
-      const gravity = Math.max(0, dy * 0.3)         // bias ușor în jos
-      const swirl = Math.sin((dx + dy) * 0.2) * 2   // curbează propagarea
-    
-      const dist = distance + jitter + gravity + swirl
+      const randomness = Math.random() * 6
+      const gravityBias = dy * 0.7
+      const dist = Math.sqrt(dx * dx + dy * dy) + randomness - gravityBias
       this.queue.push({ x: px, y: py, dist })
     }
-    
 
     this.enqueue(Math.floor(x), Math.floor(y))
   }
@@ -57,29 +52,41 @@ class FloodTask {
   step(fillColor) {
     let count = 0
     this.queue.sort((a, b) => a.dist - b.dist)
-
+  
     while (this.queue.length > 0 && count < this.batchSize) {
       const { x: cx, y: cy } = this.queue.shift()
       const i = (cy * this.canvasWidth + cx) * 4
       if (!this.matchColor(i) || this.visited.has(i)) continue
-
+  
       this.setColor(i, fillColor)
       this.visited.add(i)
       count++
-
+  
       if (cx > 0) this.enqueue(cx - 1, cy)
       if (cx < this.canvasWidth - 1) this.enqueue(cx + 1, cy)
       if (cy > 0) this.enqueue(cx, cy - 1)
       if (cy < this.canvasHeight - 1) this.enqueue(cx, cy + 1)
     }
+  
+    this._frameCount = (this._frameCount || 0) + 1
 
-    const updated = new ImageData(this.data, this.canvasWidth, this.canvasHeight)
-    
-    this.ctx.putImageData(updated, 0, 0)
-    this.texture.needsUpdate = true
+if (this.queue.length === 0) {
+  // doar 1 update final, dacă s-a terminat
+  const updated = new ImageData(this.data, this.canvasWidth, this.canvasHeight)
+  this.ctx.putImageData(updated, 0, 0)
+  this.texture.needsUpdate = true
+  return false // iese din lista flood-urilor active
+}
 
-    return this.queue.length > 0
+if (this._frameCount % 3 === 0) {
+  const updated = new ImageData(this.data, this.canvasWidth, this.canvasHeight)
+  this.ctx.putImageData(updated, 0, 0)
+  this.texture.needsUpdate = true
+}
+
+return true
   }
+  
 }
 
 const PaintLayer = ({ imageUrl }) => {
@@ -108,28 +115,19 @@ const PaintLayer = ({ imageUrl }) => {
     img.onload = () => {
       canvas.width = img.width
       canvas.height = img.height
-    
+
       const targetWidth = 10
       const aspect = img.height / img.width
       setSize({ width: targetWidth, height: targetWidth * aspect })
-    
+
       context.drawImage(img, 0, 0)
-    
-      // ✅ Warmup call
-      try {
-        context.getImageData(0, 0, 1, 1)
-        console.log('✅ getImageData warmup OK')
-      } catch (e) {
-        console.warn('⚠️ getImageData warmup failed', e)
-      }
-    
-      // 🧠 Save shared image data
+
+      // 📸 Salvăm un singur ImageData partajat
       sharedImageDataRef.current = context.getImageData(0, 0, canvas.width, canvas.height)
-    
+
       texture.needsUpdate = true
       setIsReady(true)
     }
-    
   }, [imageUrl])
 
   // 🎨 Convertor HEX → RGB
@@ -149,23 +147,30 @@ const PaintLayer = ({ imageUrl }) => {
     if (!isReady) return
   
     const stats = new Stats()
-    stats.showPanel(0)
+    stats.showPanel(0) // FPS
     document.body.appendChild(stats.dom)
   
-    const loop = () => {
+    let animationRunning = false
+  
+    const animate = () => {
       stats.begin()
-  
-      activeFloodsRef.current = activeFloodsRef.current.filter((task) =>
-        task.step(task.fillColor)
-      )
-  
       stats.end()
-      requestAnimationFrame(loop)
+      if (animationRunning) {
+        requestAnimationFrame(animate)
+      }
     }
   
-    // ✅ Trebuie pornită bucla:
-    requestAnimationFrame(loop)
+    // Pornim animația odată cu floodFillAnimated
+    animationRunning = true
+    requestAnimationFrame(animate)
+  
+    return () => {
+      animationRunning = false
+    }
   }, [isReady])
+  
+  
+
   // 🖱️ Click = adăugăm un flood nou
   useEffect(() => {
     if (!isReady) return
