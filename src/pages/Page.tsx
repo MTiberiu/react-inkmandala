@@ -4,7 +4,8 @@ import { useParams } from 'react-router-dom';
 import { usePrint } from '../contexts/PrintContext';
 import './Page.css';
 import onepx from '../assets/1px.png'; // 
-import CanvasWrapper from "../components/colorapp/CanvasWrapper"
+import CanvasWrapper from "../components/colorapp/CanvasWrapper";
+import ControlsPanel from "../components/colorapp/ControlsPanel"
 
 
 const Page: React.FC = () => {
@@ -13,6 +14,10 @@ const Page: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const { handlePrintPDF } = usePrint();
 
+  const [effects, setEffects] = useState({
+    pulse: false,
+    ripple: false
+  })
 
   function handlePrint() {
     handlePrintPDF(page.print_image)
@@ -76,8 +81,9 @@ const Page: React.FC = () => {
   return (
     <>
       <MetaHead title={page.title}  canonical={canonical} seoTitle='Mandala Coloring Page - Free pdf printable sheet to color'/>
+      <ControlsPanel effects={effects} setEffects={setEffects} />
       <div style={{ width: '100%', height: '100vh' }}>
-      <CanvasWrapper imageUrl={page.featured_image_sizes["1536x1536"]} />
+      <CanvasWrapper imageUrl={page.featured_image_sizes["1536x1536"]} effects={effects} />
     </div>
       <div>
         <div className="single-book">

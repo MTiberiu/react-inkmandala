@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Grid, GizmoHelper, GizmoViewport } from '@react-three/drei'
 import PaintLayer from './PaintLayer'
 
-const CanvasWrapper = ({ imageUrl }) => {
+const CanvasWrapper = ({ imageUrl, effects  }) => {
   return (
     <Canvas
       orthographic
@@ -24,7 +24,7 @@ const CanvasWrapper = ({ imageUrl }) => {
       </mesh>
 
       {/* 🧩 Componenta de colorat */}
-      <PaintLayer imageUrl={imageUrl} />
+      <PaintLayer imageUrl={imageUrl} effects={effects} />
 
       {/* Ghid vizual & OrbitControls */}
       <Grid sectionColor="#bbb" cellColor="#ddd" infiniteGrid={false} />

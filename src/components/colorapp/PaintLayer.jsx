@@ -7,37 +7,37 @@ const COLORS = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#A66DD4']
 
 // 🧠 FloodTask = un flood animat independent
 class FloodTask {
-  constructor(sharedImageData, ctx, x, y, fillColor, texture, batchSize = 20) {
+  constructor(sharedImageData, ctx, x, y, fillColor, texture, batchSize = 20, effects = {}) {
     this.ctx = ctx
     this.texture = texture
     this.batchSize = batchSize
     this.canvasWidth = ctx.canvas.width
     this.canvasHeight = ctx.canvas.height
-
+  
+   
+  
     this.imgData = sharedImageData
     this.data = this.imgData.data
-
+  
     const offset = (Math.floor(y) * this.canvasWidth + Math.floor(x)) * 4
     this.targetColor = this.data.slice(offset, offset + 3)
     this.visited = new Set()
-
+  
     this.queue = []
     this.enqueue = (px, py) => {
       const dx = px - x
       const dy = py - y
-    
       const distance = Math.sqrt(dx * dx + dy * dy)
-      const jitter = Math.random() * 5             // neregularitate
-      const gravity = Math.max(0, dy * 0.3)         // bias ușor în jos
-      const swirl = Math.sin((dx + dy) * 0.2) * 2   // curbează propagarea
-    
+      const jitter = Math.random() * 5
+      const gravity = Math.max(0, dy * 0.3)
+      const swirl = Math.sin((dx + dy) * 0.2) * 2
       const dist = distance + jitter + gravity + swirl
       this.queue.push({ x: px, y: py, dist })
     }
-    
-
+  
     this.enqueue(Math.floor(x), Math.floor(y))
   }
+  
 
   matchColor(i) {
     return (
@@ -54,35 +54,50 @@ class FloodTask {
     this.data[i + 3] = 255
   }
 
-  step(fillColor) {
+  step(fillColor, currentEffects = {}) {
+    this._frameCount = (this._frameCount || 0) + 1
     let count = 0
     this.queue.sort((a, b) => a.dist - b.dist)
-
+  
     while (this.queue.length > 0 && count < this.batchSize) {
       const { x: cx, y: cy } = this.queue.shift()
       const i = (cy * this.canvasWidth + cx) * 4
       if (!this.matchColor(i) || this.visited.has(i)) continue
-
+  
       this.setColor(i, fillColor)
       this.visited.add(i)
       count++
-
+  
+      if (currentEffects.pulse) {
+        const pulse = Math.floor(Math.sin(this._frameCount * 0.2) * 100)
+        this.data[i] = Math.min(255, this.data[i] + pulse)
+        this.data[i + 1] = Math.max(0, this.data[i + 1] - pulse)
+        this.data[i + 2] = Math.max(0, this.data[i + 2] - pulse)
+      }
+  
+      if (currentEffects.ripple) {
+        const ripple = Math.floor(Math.sin((cx + cy) * 0.15 + this._frameCount * 0.5) * 120)
+        this.data[i + 2] = Math.min(255, this.data[i + 2] + ripple)
+      }
+  
       if (cx > 0) this.enqueue(cx - 1, cy)
       if (cx < this.canvasWidth - 1) this.enqueue(cx + 1, cy)
       if (cy > 0) this.enqueue(cx, cy - 1)
       if (cy < this.canvasHeight - 1) this.enqueue(cx, cy + 1)
     }
-
+  
     const updated = new ImageData(this.data, this.canvasWidth, this.canvasHeight)
-    
     this.ctx.putImageData(updated, 0, 0)
     this.texture.needsUpdate = true
-
+  
     return this.queue.length > 0
   }
+  
+  
+  
 }
 
-const PaintLayer = ({ imageUrl }) => {
+const PaintLayer = ({ imageUrl, effects }) => {
   const meshRef = useRef()
   const activeFloodsRef = useRef([])
   const sharedImageDataRef = useRef(null)
@@ -145,67 +160,74 @@ const PaintLayer = ({ imageUrl }) => {
   }
 
   // 🌀 Loop global pentru toate flood-urile active
-  useEffect(() => {
-    if (!isReady) return
-  
-    const stats = new Stats()
-    stats.showPanel(0)
-    document.body.appendChild(stats.dom)
-  
-    const loop = () => {
-      stats.begin()
-  
-      activeFloodsRef.current = activeFloodsRef.current.filter((task) =>
-        task.step(task.fillColor)
-      )
-  
-      stats.end()
-      requestAnimationFrame(loop)
-    }
-  
-    // ✅ Trebuie pornită bucla:
-    requestAnimationFrame(loop)
-  }, [isReady])
+// 🌀 Loop global pentru toate flood-urile active
+useEffect(() => {
+  if (!isReady) return;
+
+  const stats = new Stats();
+  stats.showPanel(0);
+  document.body.appendChild(stats.dom);
+
+  const loop = () => {
+    stats.begin();
+
+    // 🔥 Transmitem efectele curente în fiecare frame!
+    activeFloodsRef.current = activeFloodsRef.current.filter((task) =>
+      task.step(task.fillColor, effects)
+    );
+
+    stats.end();
+    requestAnimationFrame(loop);
+  };
+
+  requestAnimationFrame(loop);
+}, [isReady, effects]); // 👈 E VITAL să adaugi effects aici!
+
+
   // 🖱️ Click = adăugăm un flood nou
   useEffect(() => {
     if (!isReady) return
-
+  
     const handleClick = (event) => {
+      console.log('👀 EFFECTS LA CLICK:', effects) // ← Acum va merge!
+  
       const bounds = gl.domElement.getBoundingClientRect()
       const ndc = new Vector2(
         ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
         -((event.clientY - bounds.top) / bounds.height) * 2 + 1
       )
-
+  
       const raycaster = new Raycaster()
       raycaster.setFromCamera(ndc, camera)
       const intersects = raycaster.intersectObject(meshRef.current)
       if (intersects.length === 0) return
-
+  
       const uv = intersects[0].uv
       if (!uv) return
-
+  
       const x = uv.x * canvas.width
       const y = (1 - uv.y) * canvas.height
-
+  
       const color = COLORS[Math.floor(Math.random() * COLORS.length)]
       const rgb = hexToRgb(color)
-
+  
       const task = new FloodTask(
         sharedImageDataRef.current,
         context,
         x,
         y,
         rgb,
-        texture
+        texture,
+        20
       )
       task.fillColor = rgb
       activeFloodsRef.current.push(task)
     }
-
-    gl.domElement.addEventListener('click', handleClick)
+  
+    gl.domElement.addEventListener('mousedown', handleClick)
     return () => gl.domElement.removeEventListener('click', handleClick)
-  }, [gl, camera, isReady, canvas, context, texture])
+  }, [gl, camera, isReady, canvas, context, texture, effects]) // ← adaugă `effects` aici!
+  
 
   if (!isReady) return null
 
