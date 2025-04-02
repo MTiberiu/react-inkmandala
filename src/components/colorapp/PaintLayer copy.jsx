@@ -83,7 +83,14 @@ if (this._frameCount % 3 === 0) {
   this.ctx.putImageData(updated, 0, 0)
   this.texture.needsUpdate = true
 }
-
+if (onParticleColorShift) {
+  onParticleColorShift(cx, cy, fillColor)
+}
+if (this.onColorShift) {
+  const worldX = (cx / this.canvasWidth) * 10 - 5
+  const worldY = (1 - cy / this.canvasHeight) * 10 - 5
+  this.onColorShift(worldX, worldY, fillColor)
+}
 return true
   }
   

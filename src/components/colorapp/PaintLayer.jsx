@@ -7,13 +7,15 @@ const COLORS = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#A66DD4']
 
 // 🧠 FloodTask = un flood animat independent
 class FloodTask {
-  constructor(sharedImageData, ctx, x, y, fillColor, texture, batchSize = 20, effects = {}) {
+  constructor(sharedImageData, ctx, x, y, fillColor, texture, batchSize = 20, effects = {}, onColorShift) {
     this.ctx = ctx
     this.texture = texture
     this.batchSize = batchSize
     this.canvasWidth = ctx.canvas.width
     this.canvasHeight = ctx.canvas.height
-  
+    this.onColorShift = onColorShift
+    this.effects = effects
+    this._hasShifted = false
    
   
     this.imgData = sharedImageData
@@ -59,6 +61,9 @@ class FloodTask {
     let count = 0
     this.queue.sort((a, b) => a.dist - b.dist)
   
+    let lastX = null
+    let lastY = null
+  
     while (this.queue.length > 0 && count < this.batchSize) {
       const { x: cx, y: cy } = this.queue.shift()
       const i = (cy * this.canvasWidth + cx) * 4
@@ -68,23 +73,40 @@ class FloodTask {
       this.visited.add(i)
       count++
   
-      if (currentEffects.pulse) {
+      lastX = cx
+      lastY = cy
+  
+      // Pulse
+      if (this.effects?.pulse) {
         const pulse = Math.floor(Math.sin(this._frameCount * 0.2) * 100)
         this.data[i] = Math.min(255, this.data[i] + pulse)
         this.data[i + 1] = Math.max(0, this.data[i + 1] - pulse)
         this.data[i + 2] = Math.max(0, this.data[i + 2] - pulse)
       }
   
-      if (currentEffects.ripple) {
+      // Ripple
+      if (this.effects?.ripple) {
         const ripple = Math.floor(Math.sin((cx + cy) * 0.15 + this._frameCount * 0.5) * 120)
         this.data[i + 2] = Math.min(255, this.data[i + 2] + ripple)
       }
   
+      // Propagare
       if (cx > 0) this.enqueue(cx - 1, cy)
       if (cx < this.canvasWidth - 1) this.enqueue(cx + 1, cy)
       if (cy > 0) this.enqueue(cx, cy - 1)
       if (cy < this.canvasHeight - 1) this.enqueue(cx, cy + 1)
     }
+  
+    // Efect pentru particule
+    if (this.onColorShift && !this._hasShifted && lastX !== null && lastY !== null) {
+      const worldX = (lastX / this.canvasWidth - 0.5) * 10
+      const worldY = (0.5 - lastY / this.canvasHeight) * 10
+      this.onColorShift(worldX, worldY, fillColor)
+      this._hasShifted = true
+    }
+    
+
+    
   
     const updated = new ImageData(this.data, this.canvasWidth, this.canvasHeight)
     this.ctx.putImageData(updated, 0, 0)
@@ -95,9 +117,11 @@ class FloodTask {
   
   
   
+  
+  
 }
 
-const PaintLayer = ({ imageUrl, effects }) => {
+const PaintLayer = ({ imageUrl, effects, onColorShift }) => {
   const meshRef = useRef()
   const activeFloodsRef = useRef([])
   const sharedImageDataRef = useRef(null)
@@ -218,7 +242,9 @@ useEffect(() => {
         y,
         rgb,
         texture,
-        20
+        20,
+        effects,
+        onColorShift
       )
       task.fillColor = rgb
       activeFloodsRef.current.push(task)

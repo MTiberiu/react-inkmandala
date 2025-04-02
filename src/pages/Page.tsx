@@ -6,6 +6,7 @@ import './Page.css';
 import onepx from '../assets/1px.png'; // 
 import CanvasWrapper from "../components/colorapp/CanvasWrapper";
 import ControlsPanel from "../components/colorapp/ControlsPanel"
+import Modal from '../components/Modal';
 
 
 const Page: React.FC = () => {
@@ -13,6 +14,7 @@ const Page: React.FC = () => {
   const [page, setPage] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { handlePrintPDF } = usePrint();
+  const [isOpen, setIsOpen] = useState(false);
 
   const [effects, setEffects] = useState({
     pulse: false,
@@ -81,13 +83,11 @@ const Page: React.FC = () => {
   return (
     <>
       <MetaHead title={page.title}  canonical={canonical} seoTitle='Mandala Coloring Page - Free pdf printable sheet to color'/>
-      <ControlsPanel effects={effects} setEffects={setEffects} />
-      <div style={{ width: '100%', height: '100vh' }}>
-      <CanvasWrapper imageUrl={page.featured_image_sizes["1536x1536"]} effects={effects} />
-    </div>
+      
       <div>
         <div className="single-book">
           <h1>{page.title}</h1>
+          <button onClick={() => setIsOpen(true)}>
           <div className="img-container">
             {page.featured_image && (
               <img
@@ -98,6 +98,7 @@ const Page: React.FC = () => {
               />
             )}
           </div>
+          </button>
           <div style={{ maxWidth: '420px' }} dangerouslySetInnerHTML={{ __html: page.excerpt }} />
           <div className='actions'>
             <button onClick={() => handlePrint()}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg></button>
@@ -108,6 +109,15 @@ const Page: React.FC = () => {
           {/* Add other book page details here */}
         </div>
       </div>
+      {isOpen && (
+      <Modal onClose={() => setIsOpen(false)}>
+      <ControlsPanel effects={effects} setEffects={setEffects} />
+      <div style={{ width: '100%', height: '100%' }}>
+      <CanvasWrapper imageUrl={page.featured_image_sizes["1536x1536"]} effects={effects} />
+    </div>
+      
+      </Modal>
+      )}
     </>
   );
 };

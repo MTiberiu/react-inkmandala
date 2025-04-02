@@ -1,14 +1,11 @@
 import React from 'react'
-
+import "./ControlsPanel.css"
 const ControlsPanel = ({ effects, setEffects }) => {
   const toggle = (key) =>
     setEffects((prev) => ({ ...prev, [key]: !prev[key] }))
 
   return (
-    <div style={{
-      
-      padding: '1rem', borderRadius: 8, zIndex: 10
-    }}>
+    <div className='controls-container'>
       <label>
         <input
           type="checkbox"
