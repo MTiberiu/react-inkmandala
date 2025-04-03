@@ -22,6 +22,7 @@ const Page: React.FC = () => {
  const activeEffect = useAppStore(state => state.activeEffect);
 const particlesEnabled = useAppStore(state => state.particlesEnabled);
 const selectedFloodType = useAppStore(state => state.selectedFloodType);
+const requestClear = useAppStore(state => state.requestClear);
 // Acțiunile sunt de obicei stabile, dar e bine să le selectezi și pe ele separat
  const setActiveEffect = useAppStore(state => state.setActiveEffect);
  const setParticlesEnabled = useAppStore(state => state.setParticlesEnabled);
@@ -123,6 +124,7 @@ const selectedFloodType = useAppStore(state => state.selectedFloodType);
       setParticlesEnabled={setParticlesEnabled}
       selectedFloodType={selectedFloodType}
       setFloodType={setFloodType}
+      requestClear={requestClear} 
       />
       <div style={{ width: '100%', height: '100%' }}>
       <CanvasWrapper 

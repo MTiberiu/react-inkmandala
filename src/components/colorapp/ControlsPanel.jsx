@@ -2,7 +2,8 @@ import React from 'react'
 import "./ControlsPanel.css"
 const ControlsPanel = ({ activeEffect, setActiveEffect,
   particlesEnabled, setParticlesEnabled,
-  selectedFloodType, setFloodType,  }) => {
+  selectedFloodType, setFloodType,
+  requestClear   }) => {
   const toggle = (key) =>
     setEffects((prev) => ({ ...prev, [key]: !prev[key] }))
 // Funcție pentru a schimba starea particulelor
@@ -62,6 +63,13 @@ const handleParticleToggle = (event) => setParticlesEnabled(event.target.checked
         Particle Explosion on Click
       </label>
     </fieldset>
+     {/* --- Butonul de Clear --- */}
++     <div> {/* Poți ajusta stilizarea */}
++         <button onClick={requestClear} title="Clear all coloring">
++             Clear Canvas
++             {/* Poți adăuga un SVG icon aici dacă vrei */}
++         </button>
++     </div>
   </div>
   )
 }
