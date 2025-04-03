@@ -7,6 +7,8 @@ import onepx from '../assets/1px.png'; //
 import CanvasWrapper from "../components/colorapp/CanvasWrapper";
 import ControlsPanel from "../components/colorapp/ControlsPanel"
 import Modal from '../components/Modal';
+import useAppStore from '../stores/appStore';
+
 
 
 const Page: React.FC = () => {
@@ -16,11 +18,14 @@ const Page: React.FC = () => {
   const { handlePrintPDF } = usePrint();
   const [isOpen, setIsOpen] = useState(false);
 
-  const [effects, setEffects] = useState({
-    pulse: false,
-    ripple: false
-  })
-
+  // Corect: Selectează fiecare element necesar individual
+ const activeEffect = useAppStore(state => state.activeEffect);
+const particlesEnabled = useAppStore(state => state.particlesEnabled);
+const selectedFloodType = useAppStore(state => state.selectedFloodType);
+// Acțiunile sunt de obicei stabile, dar e bine să le selectezi și pe ele separat
+ const setActiveEffect = useAppStore(state => state.setActiveEffect);
+ const setParticlesEnabled = useAppStore(state => state.setParticlesEnabled);
+ const setFloodType = useAppStore(state => state.setFloodType);
   function handlePrint() {
     handlePrintPDF(page.print_image)
   }
@@ -111,9 +116,21 @@ const Page: React.FC = () => {
       </div>
       {isOpen && (
       <Modal onClose={() => setIsOpen(false)}>
-      <ControlsPanel effects={effects} setEffects={setEffects} />
+      <ControlsPanel 
+      activeEffect={activeEffect}
+      setActiveEffect={setActiveEffect}
+      particlesEnabled={particlesEnabled}
+      setParticlesEnabled={setParticlesEnabled}
+      selectedFloodType={selectedFloodType}
+      setFloodType={setFloodType}
+      />
       <div style={{ width: '100%', height: '100%' }}>
-      <CanvasWrapper imageUrl={page.featured_image_sizes["1536x1536"]} effects={effects} />
+      <CanvasWrapper 
+      imageUrl={page.featured_image_sizes["1536x1536"]}
+      activeEffect={activeEffect}
+      particlesEnabled={particlesEnabled}
+      selectedFloodType={selectedFloodType}
+      />
     </div>
       
       </Modal>

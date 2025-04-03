@@ -68,7 +68,7 @@ const Particles = forwardRef((props, ref) => {
         <bufferAttribute attach="attributes-position" array={positions} itemSize={3} count={MAX} />
         <bufferAttribute attach="attributes-color" array={colors} itemSize={3} count={MAX} />
       </bufferGeometry>
-      <pointsMaterial size={0.25} sizeAttenuation vertexColors transparent opacity={1.0} />
+      <pointsMaterial size={5} sizeAttenuation vertexColors transparent opacity={1.0} />
     </points>
   )
 })
