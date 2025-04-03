@@ -24,6 +24,8 @@ const CanvasWrapper = ({ imageUrl, activeEffect, particlesEnabled, selectedFlood
         enablePan={true}    // Permite pan (implicit: Middle Mouse sau Shift+Left)
         enableZoom={true}   // Permite zoom (Scroll sau Pinch)
         enableRotate={true} // Permite rotația în general
+        enableDamping={true}
+        dampingFactor={1}
 
         // Re-mapează butoanele mouse-ului
         mouseButtons={{
@@ -38,6 +40,7 @@ const CanvasWrapper = ({ imageUrl, activeEffect, particlesEnabled, selectedFlood
            ONE: THREE.TOUCH.PAN,     // Un deget = Pan
            TWO: THREE.TOUCH.DOLLY_ROTATE // Două degete = Zoom și Rotire
          }}
+         zoomToCursor={true}
       />
       {/* --------------------------------- */}
 
