@@ -1,6 +1,6 @@
 // src/utils/colorUtils.js
 
-export const COLORS = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#A66DD4'];
+export const COLORS = ['#FF6B6B'];
 
 export const hexToRgb = (hex) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);

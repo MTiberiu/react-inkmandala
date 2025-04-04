@@ -6,125 +6,143 @@ import { useThree } from '@react-three/fiber';
 import useCanvasTextureLoader from '../../hooks/useCanvasTextureLoader';
 import useAnimatedFills from '../../hooks/useAnimatedFills';
 import usePaintInteraction from '../../hooks/usePaintInteraction';
-import { FloodTask } from '../../features/coloring/FloodTask';
-import { performDirectFloodFill, mergeImageData } from '../../features/coloring/floodFillUtils';
-import { hexToRgb } from '../../utils/colorUtils';
+import { FloodTask } from '../../features/coloring/FloodTask'; // Asigură-te că importul FloodTask este corect
 
-const PaintLayer = ({ imageUrl, activeEffect, selectedFloodType, onColorShift }) => {
+// Presupunem că ai mutat aceste funcții sau le-ai redenumit/creat în DrawUtils
+// Dacă sunt încă în floodFillUtils, ajustează calea importului.
+import { performDirectFloodFill, mergeImageData } from '../../features/coloring/DrawUtils'; // [source: 201, 277, 301] sau ajustează calea
+
+// hexToRgb nu mai este necesar aici dacă usePaintInteraction îl gestionează
+// import { hexToRgb } from '../../utils/colorUtils';
+
+// Redenumim prop-ul pentru claritate
+const PaintLayer = ({ imageUrl, activeEffect, selectedPaintMode, onColorShift }) => {
   const meshRef = useRef();
   const { gl, camera } = useThree();
 
-  // Hook Canvas/Textură
-  const { canvas, context, texture, size, isReady, sharedImageDataRef } = useCanvasTextureLoader(imageUrl);
+  // Hook Canvas/Textură - expune sharedImageDataRef și texture
+  const { canvas, context, texture, size, isReady, sharedImageDataRef } = useCanvasTextureLoader(imageUrl); // [source: 203, 375-388]
 
-  // --- Funcția de Commit Task (definită aici, pasată la hook-uri) ---
-   const commitTaskResult = useCallback((task) => {
-        // console.log("Attempting commit for task ", task); // Debug
-        if (task && sharedImageDataRef?.current && task.visited && task.visited.size > 0) {
-             // console.log("Committing task with visited pixels:", task.visited.size); // Debug
-             mergeImageData(sharedImageDataRef.current, task.imgData, task.visited);
-             // Nu mai actualizăm textura aici, bucla de animație sau logica de stop se ocupă
-             return true; // Indică succes
-        }
-        return false; // Nu s-a făcut commit
-    }, [sharedImageDataRef, context, texture, mergeImageData]); // Dependențe stabile
+  // --- Funcția de Commit Task (rămâne la fel) ---
+  const commitTaskResult = useCallback((task) => {
+      // console.log("Attempting commit for task ", task); // Debug
+      if (task && sharedImageDataRef?.current && task.visited && task.visited.size > 0) {
+           // console.log("Committing task with visited pixels:", task.visited.size); // Debug
+           mergeImageData(sharedImageDataRef.current, task.imgData, task.visited); // [source: 204]
+           // Nu mai actualizăm textura aici, bucla de animație sau logica de stop se ocupă
+           return true; // Indică succes
+      }
+      return false; // Nu s-a făcut commit
+  }, [sharedImageDataRef, mergeImageData]); // Eliminat context, texture din deps aici, mergeImageData e importat
 
-  // Hook Animații (primește funcția de commit)
+  // Hook Animații (primește funcția de commit și selectedPaintMode)
   const { addAnimatedTask, activeFloodsRef } = useAnimatedFills(
-      isReady, selectedFloodType, context, texture, sharedImageDataRef, commitTaskResult
+      isReady, selectedPaintMode, context, texture, sharedImageDataRef, commitTaskResult // [source: 206, 350-374]
   );
 
-  // --- Callback-uri pentru usePaintInteraction ---
+  // --- Callback-uri pentru usePaintInteraction (rămân similare) ---
   const handleDirectFillTrigger = useCallback((clickData) => {
       if (!sharedImageDataRef.current || !context || !texture) return;
 
       // --- Oprește și Comite task-urile existente ÎNAINTE de fill ---
       let committedSomething = false;
       activeFloodsRef.current.forEach(task => {
-           // Folosim commitTaskResult și verificăm dacă a returnat true
-           if(commitTaskResult(task)) {
+           if(commitTaskResult(task)) { // [source: 207]
                committedSomething = true;
            }
-           task.signalStop(); // Asigură oprirea
+           task.signalStop(); // [source: 102, 329]
       });
-      activeFloodsRef.current = []; // Golește array-ul
+      activeFloodsRef.current = []; // Golește array-ul [source: 150]
 
       // Actualizează textura O DATĂ dacă s-a făcut commit la ceva
       if (committedSomething && context && texture && sharedImageDataRef.current) {
-            // console.log("Updating texture after commit before direct fill"); // Debug
-            context.putImageData(sharedImageDataRef.current, 0, 0);
-            texture.needsUpdate = true;
+            context.putImageData(sharedImageDataRef.current, 0, 0); // [source: 209]
+            texture.needsUpdate = true; // [source: 209]
       }
       // --------------------------------------------------------------
 
       // Execută fill direct pe starea (posibil actualizată)
-      performDirectFloodFill(sharedImageDataRef.current, context, texture, clickData.x_canvas, clickData.y_canvas, clickData.rgb);
+      performDirectFloodFill(sharedImageDataRef.current, context, texture, clickData.x_canvas, clickData.y_canvas, clickData.rgb); // [source: 209]
 
-  }, [context, texture, sharedImageDataRef, activeFloodsRef, commitTaskResult]);
-
+  }, [context, texture, sharedImageDataRef, activeFloodsRef, commitTaskResult, performDirectFloodFill]); // Adăugat performDirectFloodFill la deps
 
   const handleAnimatedFillTrigger = useCallback((clickData) => {
     if (!sharedImageDataRef.current || !context || !texture) return null;
-    const taskImageData = new ImageData( new Uint8ClampedArray(sharedImageDataRef.current.data), sharedImageDataRef.current.width, sharedImageDataRef.current.height );
-    const task = new FloodTask(taskImageData, context, clickData.x_canvas, clickData.y_canvas, clickData.rgb, texture, 40, activeEffect);
+    // Creează o copie a ImageData pentru noul task
+    const taskImageData = new ImageData( new Uint8ClampedArray(sharedImageDataRef.current.data), sharedImageDataRef.current.width, sharedImageDataRef.current.height ); // [source: 162]
+    // Creează task-ul
+    const task = new FloodTask(taskImageData, context, clickData.x_canvas, clickData.y_canvas, clickData.rgb, texture, 40, activeEffect); // [source: 163, 310-349]
     if (task.queue.length > 0) {
-        addAnimatedTask(task);
-        return task; // Returnează task-ul pentru usePaintInteraction
+        addAnimatedTask(task); // Adaugă la hook-ul de animație [source: 164]
+        return task; // Returnează task-ul (folosit de HOLD_AND_RELEASE)
     }
     return null;
-  }, [context, texture, sharedImageDataRef, activeEffect, addAnimatedTask]);
+  }, [context, texture, sharedImageDataRef, activeEffect, addAnimatedTask]); // Dependințe corecte
 
-
-  // Hook Interacțiuni
+  // Hook Interacțiuni - acum primește și sharedImageDataRef, texture
   usePaintInteraction(
       isReady, gl, camera, meshRef, canvas,
-      selectedFloodType, onColorShift,
-      handleDirectFillTrigger, handleAnimatedFillTrigger
-      // Nu mai pasăm elemente de commit aici
-  );
+      selectedPaintMode, // Prop actualizat
+      onColorShift,
+      handleDirectFillTrigger,
+      handleAnimatedFillTrigger,
+      // --- Props noi pasate pentru modul DRAW ---
+      sharedImageDataRef,
+      texture,
+      context 
+      // --------------------------------------
+  ); // [source: 211, 390-415]
 
-  // --- Cleanup Principal la Schimbarea Modului sau Demontare ---
+  // --- Cleanup Principal la Schimbarea Modului sau Demontare (rămâne similar) ---
    useEffect(() => {
-        // Se execută când se schimbă selectedFloodType sau la demontare
+        // Se execută când se schimbă selectedPaintMode sau la demontare
         return () => {
-             // console.log(`PaintLayer Cleanup for type: ${selectedFloodType}`); // Debug
+             // console.log(`PaintLayer Cleanup for mode: ${selectedPaintMode}`); // Debug
              let committedSomething = false;
-             if (sharedImageDataRef.current) {
-                 activeFloodsRef.current.forEach(task => {
-                      if(commitTaskResult(task)) { // Comite task-urile rămase
+             if (sharedImageDataRef.current) { // Verifică dacă ref există
+                  activeFloodsRef.current.forEach(task => {
+                      if(commitTaskResult(task)) { // Comite task-urile animate rămase [source: 213]
                           committedSomething = true;
                       }
-                      task.signalStop();
+                      task.signalStop(); // [source: 214]
                  });
-                 // Actualizează textura dacă s-a comit ceva
+                 // Actualizează textura finală dacă s-a comit ceva din taskuri animate
                  if (committedSomething && context && texture) {
-                     context.putImageData(sharedImageDataRef.current, 0, 0);
-                     texture.needsUpdate = true;
+                     context.putImageData(sharedImageDataRef.current, 0, 0); // [source: 214]
+                     texture.needsUpdate = true; // [source: 215]
                  }
              }
-             activeFloodsRef.current = []; // Golește array-ul
-             // Ref-urile interne din usePaintInteraction (activeHoldTaskRef, stopTimerRef)
-             // sunt curățate de cleanup-ul acelui hook.
+             activeFloodsRef.current = []; // Golește array-ul de task-uri animate [source: 215]
+             // Hook-ul usePaintInteraction își face propriul cleanup pentru starea internă (isDrawingRef etc.)
         }
-   // Adaugă commitTaskResult și referințele necesare
-   }, [selectedFloodType, commitTaskResult, sharedImageDataRef, context, texture, activeFloodsRef]);
-
+   // Dependențe pentru cleanup
+   }, [selectedPaintMode, commitTaskResult, sharedImageDataRef, context, texture, activeFloodsRef]); // [source: 216]
 
   // Actualizare geometrie (rămâne la fel)
   useEffect(() => {
       if (isReady && meshRef.current && size) {
-          meshRef.current.geometry = new THREE.PlaneGeometry(size.width, size.height);
+          // Creează o nouă geometrie când dimensiunea se schimbă
+          meshRef.current.geometry = new THREE.PlaneGeometry(size.width, size.height); // [source: 217]
       }
   }, [isReady, size]);
 
-
   // --- Randare ---
-  if (!isReady) return null;
+  if (!isReady) return null; // Nu randa nimic dacă imaginea nu e încărcată
+
   return (
+    // Poziționăm mesh-ul în scenă
     <mesh ref={meshRef} position={[0, 0, 0]}>
+      {/* Geometria este actualizată în useEffect */}
       <planeGeometry args={[size.width, size.height]} />
-      <meshBasicMaterial map={texture} transparent toneMapped={false} side={THREE.DoubleSide} />
-    </mesh>
+      {/* Materialul folosește textura dinamică actualizată */}
+      <meshBasicMaterial
+           key={texture.uuid} // Adăugarea unui key poate forța re-renderul materialului la schimbări majore de textură
+           map={texture}
+           transparent // Permite transparența din imaginea PNG
+           toneMapped={false} // Important pentru culori fidele în colorare
+           side={THREE.DoubleSide} // Opțional, depinde dacă vrei să vezi planul din spate
+      />
+    </mesh> // [source: 218]
   );
 };
 

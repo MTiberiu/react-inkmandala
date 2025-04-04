@@ -3,7 +3,7 @@ import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Raycaster, Vector2 } from 'three'
 import Stats from 'stats.js'
-const COLORS = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#A66DD4']
+const COLORS = ['#FF6B6B']
 
 // 🧠 FloodTask = un flood animat independent
 class FloodTask {

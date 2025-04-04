@@ -93,3 +93,60 @@ export function mergeImageData(baseImageData, overlayImageData, visitedPixels) {
       }
   }
 }
+
+export function performDrawStroke(
+  imageData: ImageData | null,
+  ctx: CanvasRenderingContext2D | null, // <-- Adaugă parametrul ctx
+  texture: THREE.CanvasTexture,
+  x: number,
+  y: number,
+  brushSize: number,
+  colorRgb: number[]
+) {
+  // Verifică și contextul acum
+  if (!imageData || !ctx) {
+    console.error("performDrawStroke: imageData or context is missing!");
+    return;
+  }
+  const data = imageData.data;
+  const width = imageData.width;
+  const height = imageData.height;
+  // ... restul logicii pentru calcularea limitelor pensulei ...
+  const radius = Math.max(1, Math.floor(brushSize / 2));
+  const startX = Math.floor(x - radius);
+  const startY = Math.floor(y - radius);
+  const endX = Math.floor(x + radius);
+  const endY = Math.floor(y + radius);
+
+  let changed = false;
+  // ... bucla for pentru a itera prin pixeli ...
+  for (let cy = startY; cy <= endY; cy++) {
+    for (let cx = startX; cx <= endX; cx++) {
+      if (cx >= 0 && cx < width && cy >= 0 && cy < height) {
+        const dx = cx - x;
+        const dy = cy - y;
+        if (dx * dx + dy * dy <= radius * radius) {
+          const offset = (cy * width + cx) * 4;
+          if (data[offset + 3] > 10) {
+            // Aplică culoarea
+            data[offset]     = colorRgb[0];
+            data[offset + 1] = colorRgb[1];
+            data[offset + 2] = colorRgb[2];
+            data[offset + 3] = 255;
+            changed = true;
+          }
+        }
+      }
+    }
+  }
+  // --- SFÂRȘIT bucla for ---
+
+  // Marchează textura pentru actualizare DOAR dacă s-a schimbat ceva
+  if (changed) {
+    // --- ADAUGĂ ACEASTĂ LINIE ---
+    ctx.putImageData(imageData, 0, 0); // Actualizează explicit contextul canvas-ului 2D
+    // ---------------------------
+    // console.log('performDrawStroke: Pixels changed, updating context and setting texture.needsUpdate = true');
+    texture.needsUpdate = true;
+  }
+}

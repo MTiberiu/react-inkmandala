@@ -6,7 +6,7 @@ import Particles from './Particles';
 import { OrbitControls, Grid, GizmoHelper, GizmoViewport } from '@react-three/drei';
 import * as THREE from 'three'; // <--- Importă THREE
 
-const CanvasWrapper = ({ imageUrl, activeEffect, particlesEnabled, selectedFloodType }) => {
+const CanvasWrapper = ({ imageUrl, activeEffect, particlesEnabled, selectedPaintMode }) => {
   const particlesRef = useRef();
 
   return (
@@ -50,7 +50,7 @@ const CanvasWrapper = ({ imageUrl, activeEffect, particlesEnabled, selectedFlood
       <PaintLayer
         imageUrl={imageUrl}
         activeEffect={activeEffect}
-        selectedFloodType={selectedFloodType}
+        selectedPaintMode={selectedPaintMode}
         onColorShift={(x, y, color) => {
           // console.log('🎯 Trigger particule:', x, y, color); // Păstrează sau șterge log-ul
           if (particlesEnabled) {
