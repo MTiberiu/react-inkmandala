@@ -2,12 +2,17 @@ import React from 'react'
 import "./ControlsPanel.css"
 const ControlsPanel = ({ activeEffect, setActiveEffect,
   particlesEnabled, setParticlesEnabled,
-  selectedFloodType, setFloodType,  }) => {
+  selectedPaintMode, setPaintMode,
+  requestClear   }) => {
   const toggle = (key) =>
     setEffects((prev) => ({ ...prev, [key]: !prev[key] }))
 // Funcție pentru a schimba starea particulelor
 const handleEffectChange = (event) => setActiveEffect(event.target.value);
-const handleFloodTypeChange = (event) => setFloodType(event.target.value);
+const handlePaintModeChange = (event) => {
+  const newMode = event.target.value;
+  console.log('ControlsPanel: Changing mode to ->', newMode); // <-- LOG ADAUGAT
+  setPaintMode(newMode); // Asigură-te că tipul e corect dacă folosești TypeScript
+};
 const handleParticleToggle = (event) => setParticlesEnabled(event.target.checked);
   return (
     <div className='controls-container'>
@@ -33,15 +38,15 @@ const handleParticleToggle = (event) => setParticlesEnabled(event.target.checked
     {/* Secțiune Tip Flood Fill */}
     <fieldset>
       <legend>Flood Fill Type</legend>
-       {['DIRECT', 'ANIMATED', 'HOLD_AND_RELEASE'].map(type => (
+       {['DIRECT', 'ANIMATED', 'HOLD_AND_RELEASE', 'DRAW'].map(type => (
          <div key={type}>
            <label>
              <input
                type="radio"
                name="floodType"
                value={type}
-               checked={selectedFloodType === type}
-               onChange={handleFloodTypeChange}
+               checked={selectedPaintMode === type}
+               onChange={handlePaintModeChange}
              />
               {/* Poți pune nume mai prietenoase aici */}
              {type.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
@@ -62,6 +67,13 @@ const handleParticleToggle = (event) => setParticlesEnabled(event.target.checked
         Particle Explosion on Click
       </label>
     </fieldset>
+     {/* --- Butonul de Clear --- */}
++     <div> {/* Poți ajusta stilizarea */}
++         <button onClick={requestClear} title="Clear all coloring">
++             Clear Canvas
++             {/* Poți adăuga un SVG icon aici dacă vrei */}
++         </button>
++     </div>
   </div>
   )
 }

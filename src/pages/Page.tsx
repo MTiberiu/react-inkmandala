@@ -21,11 +21,14 @@ const Page: React.FC = () => {
   // Corect: Selectează fiecare element necesar individual
  const activeEffect = useAppStore(state => state.activeEffect);
 const particlesEnabled = useAppStore(state => state.particlesEnabled);
-const selectedFloodType = useAppStore(state => state.selectedFloodType);
+const selectedPaintMode = useAppStore(state => state.selectedPaintMode);
+const requestClear = useAppStore(state => state.requestClear);
 // Acțiunile sunt de obicei stabile, dar e bine să le selectezi și pe ele separat
  const setActiveEffect = useAppStore(state => state.setActiveEffect);
  const setParticlesEnabled = useAppStore(state => state.setParticlesEnabled);
- const setFloodType = useAppStore(state => state.setFloodType);
+ const setPaintMode = useAppStore(state => state.setPaintMode); 
+ console.log('Page.tsx: Current selectedPaintMode from store:', selectedPaintMode); // <-- LOG ADAUGAT
+
   function handlePrint() {
     handlePrintPDF(page.print_image)
   }
@@ -121,15 +124,16 @@ const selectedFloodType = useAppStore(state => state.selectedFloodType);
       setActiveEffect={setActiveEffect}
       particlesEnabled={particlesEnabled}
       setParticlesEnabled={setParticlesEnabled}
-      selectedFloodType={selectedFloodType}
-      setFloodType={setFloodType}
+      selectedPaintMode={selectedPaintMode}
+      setPaintMode={setPaintMode}
+      requestClear={requestClear} 
       />
       <div style={{ width: '100%', height: '100%' }}>
       <CanvasWrapper 
       imageUrl={page.featured_image_sizes["1536x1536"]}
       activeEffect={activeEffect}
       particlesEnabled={particlesEnabled}
-      selectedFloodType={selectedFloodType}
+      selectedPaintMode={selectedPaintMode}
       />
     </div>
       

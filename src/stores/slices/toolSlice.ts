@@ -1,18 +1,22 @@
 // src/stores/slices/toolSlice.ts
 import { StateCreator } from 'zustand';
 
-// Tipuri pentru claritate
-export type FloodType = 'DIRECT' | 'ANIMATED' | 'HOLD_AND_RELEASE';
+// Redenumit și adăugat 'DRAW'
+export type PaintMode = 'DIRECT' | 'ANIMATED' | 'HOLD_AND_RELEASE' | 'DRAW';
 
 export interface ToolSlice {
-  selectedFloodType: FloodType;
-  setFloodType: (type: FloodType) => void;
-  // Aici pot veni: selectedColor, brushSize etc.
+  selectedPaintMode: PaintMode; // Redenumit
+  setPaintMode: (type: PaintMode) => void; // Redenumit
+  clearTrigger: number | null;
+  requestClear: () => void;
+  // Aici poți adăuga în viitor: brushSize, selectedColor etc.
 }
 
 const createToolSlice: StateCreator<ToolSlice> = (set) => ({
-  selectedFloodType: 'ANIMATED', // Implicit: comportamentul actual
-  setFloodType: (type) => set({ selectedFloodType: type }),
+  selectedPaintMode: 'ANIMATED', // Sau setează 'DRAW' ca implicit pt testare
+  setPaintMode: (type) => set({ selectedPaintMode: type }), // Redenumit
+  clearTrigger: null,
+  requestClear: () => set({ clearTrigger: Date.now() }),
 });
 
 export default createToolSlice;
