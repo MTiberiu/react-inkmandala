@@ -96,14 +96,13 @@ export function mergeImageData(baseImageData, overlayImageData, visitedPixels) {
 
 export function performDrawStroke(
   imageData: ImageData | null,
-  ctx: CanvasRenderingContext2D | null, // <-- Adaugă parametrul ctx
+  ctx: CanvasRenderingContext2D | null,
   texture: THREE.CanvasTexture,
   x: number,
   y: number,
   brushSize: number,
   colorRgb: number[]
 ) {
-  // Verifică și contextul acum
   if (!imageData || !ctx) {
     console.error("performDrawStroke: imageData or context is missing!");
     return;
@@ -111,7 +110,7 @@ export function performDrawStroke(
   const data = imageData.data;
   const width = imageData.width;
   const height = imageData.height;
-  // ... restul logicii pentru calcularea limitelor pensulei ...
+
   const radius = Math.max(1, Math.floor(brushSize / 2));
   const startX = Math.floor(x - radius);
   const startY = Math.floor(y - radius);
@@ -119,34 +118,49 @@ export function performDrawStroke(
   const endY = Math.floor(y + radius);
 
   let changed = false;
-  // ... bucla for pentru a itera prin pixeli ...
+
+  // --- MODIFICARE ---
+  // Setează un prag pentru cât de închisă trebuie să fie o culoare pentru a fi considerată "linie neagră"
+  // O valoare mai mică este mai strictă (mai aproape de negru pur).
+  // O valoare ca 50 va include și griuri foarte închise. Ajustează după nevoie.
+  const blackThreshold = 150;
+  // -------------
+
   for (let cy = startY; cy <= endY; cy++) {
     for (let cx = startX; cx <= endX; cx++) {
       if (cx >= 0 && cx < width && cy >= 0 && cy < height) {
         const dx = cx - x;
         const dy = cy - y;
+        // Verifică dacă pixelul este în raza pensulei
         if (dx * dx + dy * dy <= radius * radius) {
           const offset = (cy * width + cx) * 4;
-          if (data[offset + 3] > 10) {
-            // Aplică culoarea
+
+          // --- MODIFICARE ---
+          // Verifică culoarea pixelului destinație ȘI canalul alpha
+          const isOpaque = data[offset + 3] > 128; // Verificăm dacă pixelul este suficient de opac
+          const isDark = data[offset] < blackThreshold &&
+                         data[offset + 1] < blackThreshold &&
+                         data[offset + 2] < blackThreshold;
+
+          // Colorează DOAR dacă pixelul este opac ȘI NU este considerat "negru/închis"
+          if (isOpaque && !isDark) {
+          // -------------
+            // Aplică culoarea nouă
             data[offset]     = colorRgb[0];
             data[offset + 1] = colorRgb[1];
             data[offset + 2] = colorRgb[2];
-            data[offset + 3] = 255;
+            data[offset + 3] = 255; // Asigură opacitatea completă a culorii aplicate
             changed = true;
           }
         }
       }
     }
   }
-  // --- SFÂRȘIT bucla for ---
 
-  // Marchează textura pentru actualizare DOAR dacă s-a schimbat ceva
   if (changed) {
-    // --- ADAUGĂ ACEASTĂ LINIE ---
-    ctx.putImageData(imageData, 0, 0); // Actualizează explicit contextul canvas-ului 2D
-    // ---------------------------
-    // console.log('performDrawStroke: Pixels changed, updating context and setting texture.needsUpdate = true');
-    texture.needsUpdate = true;
+    // Actualizează contextul canvas-ului 2D (esențial!)
+    ctx.putImageData(imageData, 0, 0); // [Source 328]
+    // Marchează textura Three.js pentru actualizare pe GPU
+    texture.needsUpdate = true; // [Source 329]
   }
 }
