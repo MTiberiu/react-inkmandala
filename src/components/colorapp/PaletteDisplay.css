@@ -1,0 +1,102 @@
+/* src/components/colorapp/PaletteDisplay.css */
+.palette-section h5 {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.palette-display {
+  display: flex;
+  flex-wrap: wrap; /* Permite trecerea pe rândul următor */
+  gap: 8px; /* Spațiu între swatches */
+  padding-bottom: 10px; /* Puțin spațiu sub paletă */
+}
+
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #ccc;
+  border-radius: 4px; /* Colțuri rotunjite */
+  cursor: pointer;
+  padding: 0; /* Elimină padding-ul default al butonului */
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.color-swatch:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.color-swatch.active {
+  border: 2px solid #007bff; /* Bordo groasă albastră pentru swatch-ul activ */
+  transform: scale(1.1); /* Menține mărirea */
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Umbră albastră */
+}
+
+/* Stiluri Dark Mode (opțional) */
+@media (prefers-color-scheme: dark) {
+  .palette-section h5 {
+    color: #aaa;
+  }
+  .color-swatch {
+    border: 1px solid #555;
+    box-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
+  }
+   .color-swatch.active {
+     border: 2px solid #58a6ff; /* Albastru mai deschis pentru dark mode */
+     box-shadow: 0 0 5px rgba(88, 166, 255, 0.5);
+  }
+}
+
+
+
+.swatch-container {
+  position: relative; /* Necesar pentru poziționarea absolută a butonului 'x' */
+  /* Nu adăuga padding/margin aici, le are .color-swatch */
+  line-height: 0; /* Ajută la aliniere dacă apar spații nedorite */
+}
+
+.delete-swatch-button {
+  position: absolute;
+  top: -5px;       /* Ajustează fin poziția */
+  right: -5px;      /* Ajustează fin poziția */
+  width: 16px;
+  height: 16px;
+  border-radius: 50%; /* Cerc */
+  background-color: rgba(200, 50, 50, 0.85); /* Roșu semi-transparent */
+  color: white;
+  border: 1px solid rgba(150, 0, 0, 0.9);
+  cursor: pointer;
+  padding: 0;
+  line-height: 14px; /* Centrează 'x'-ul vertical */
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  display: none; /* Ascuns inițial */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  z-index: 1; /* Să fie deasupra swatch-ului */
+}
+
+/* Afișează butonul 'x' la hover pe container */
+.swatch-container:hover .delete-swatch-button {
+  display: block;
+}
+
+.delete-swatch-button:hover {
+  background-color: rgba(220, 0, 0, 1); /* Roșu mai intens la hover */
+  border-color: rgba(100, 0, 0, 1);
+}
+
+/* Stiluri Dark Mode (opțional) */
+@media (prefers-color-scheme: dark) {
+   .delete-swatch-button {
+      background-color: rgba(230, 80, 80, 0.85);
+      border: 1px solid rgba(255, 100, 100, 0.9);
+      color: #1a1a1a; /* Text mai închis pe fundal deschis */
+   }
+   .delete-swatch-button:hover {
+      background-color: rgba(255, 50, 50, 1);
+   }
+}

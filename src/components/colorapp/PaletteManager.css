@@ -1,0 +1,212 @@
+/* src/components/colorapp/PaletteManager.css */
+.palette-manager-section {
+  margin-top: 1rem;
+  border-top: 1px solid #e0e0e0; /* Linie separatoare */
+  padding-top: 1rem;
+}
+
+.palette-manager-section h4 {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+}
+
+.palette-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Spațiu între label și select */
+  margin-bottom: 1rem; /* Spațiu sub selector */
+}
+
+.palette-selector label {
+  font-size: 0.9em;
+  color: #333;
+}
+
+.palette-selector select {
+  padding: 5px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  flex-grow: 1; /* Permite select-ului să ocupe spațiul rămas */
+  background-color: white;
+  cursor: pointer;
+}
+
+/* Stiluri Dark Mode (opțional) */
+@media (prefers-color-scheme: dark) {
+   .palette-manager-section {
+     border-top-color: #444;
+   }
+  .palette-selector label {
+     color: #ccc;
+  }
+   .palette-selector select {
+     background-color: #333;
+     color: #eee;
+     border-color: #555;
+  }
+}
+
+.palette-actions {
+  margin-top: 0.5rem; /* Spațiu deasupra butonului */
+  display: flex; /* Pentru aliniere dacă adăugăm mai multe butoane */
+}
+
+.palette-actions button {
+  padding: 6px 12px;
+  font-size: 0.9em;
+  background-color: #e0e0e0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.palette-actions button:hover {
+  background-color: #d5d5d5;
+}
+
+/* Stiluri Dark Mode (opțional) */
+@media (prefers-color-scheme: dark) {
+  .palette-actions button {
+    background-color: #444;
+    border-color: #666;
+    color: #eee;
+  }
+  .palette-actions button:hover {
+    background-color: #555;
+  }
+}
+
+.create-palette-section {
+  margin-top: 1rem;
+  border-top: 1px solid #e0e0e0; /* Linie separatoare */
+  padding-top: 1rem;
+}
+
+.create-palette-section h5 {
+    margin-top: 0;
+    margin-bottom: 0.8rem;
+    font-size: 0.9em; /* Consistent cu celelalte titluri */
+    color: #555;
+}
+
+.create-palette-controls {
+  display: flex;
+  gap: 0.5rem; /* Spațiu între input și buton */
+}
+
+.create-palette-controls input[type="text"] {
+  flex-grow: 1; /* Input-ul ocupă spațiul disponibil */
+  padding: 5px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.create-palette-controls button {
+   padding: 6px 12px;
+   font-size: 0.9em;
+   background-color: #28a745; /* Verde pentru creare */
+   color: white;
+   border: 1px solid #218838;
+   border-radius: 4px;
+   cursor: pointer;
+   transition: background-color 0.2s ease;
+   white-space: nowrap; /* Previne ruperea textului pe buton */
+}
+
+ .create-palette-controls button:hover {
+   background-color: #218838;
+ }
+
+
+/* Stiluri Dark Mode (opțional) */
+@media (prefers-color-scheme: dark) {
+   .create-palette-section {
+     border-top-color: #444;
+   }
+   .create-palette-section h5 {
+     color: #aaa;
+   }
+   .create-palette-controls input[type="text"] {
+     background-color: #333;
+     color: #eee;
+     border-color: #555;
+   }
+    .create-palette-controls button {
+        background-color: #2a7a3f;
+        border-color: #349c4e;
+    }
+    .create-palette-controls button:hover {
+        background-color: #349c4e;
+    }
+}
+
+
+.palette-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem; /* Adaugă spațiu între butoane */
+  flex-wrap: wrap; /* Permite trecerea pe rândul următor dacă nu încap */
+}
+
+.palette-actions button {
+  padding: 6px 12px;
+  font-size: 0.9em;
+  background-color: #e0e0e0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.palette-actions button:hover:not(:disabled) { /* Aplică hover doar dacă nu e dezactivat */
+  background-color: #d5d5d5;
+}
+
+.palette-actions button:disabled { /* Stil pentru butoane dezactivate */
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* ++ Stil specific pentru butonul de ștergere ++ */
+.delete-palette-button {
+    background-color: #dc3545; /* Roșu pentru ștergere */
+    color: white;
+    border-color: #c82333;
+}
+
+.delete-palette-button:hover:not(:disabled) {
+     background-color: #c82333;
+}
+/* ------------------------------------------- */
+
+
+/* ... restul stilurilor ... */
+
+/* Stiluri Dark Mode (opțional) */
+@media (prefers-color-scheme: dark) {
+   /* ... stilurile dark existente ... */
+
+   .palette-actions button {
+     background-color: #444;
+     border-color: #666;
+     color: #eee;
+   }
+   .palette-actions button:hover:not(:disabled) {
+     background-color: #555;
+   }
+    .palette-actions button:disabled {
+        opacity: 0.5;
+    }
+
+   /* ++ Stil dark pentru buton ștergere ++ */
+   .delete-palette-button {
+        background-color: #a12a36;
+        border-color: #c73e4c;
+        color: #f0f0f0;
+   }
+    .delete-palette-button:hover:not(:disabled) {
+         background-color: #c73e4c;
+    }
+   /* ----------------------------------- */
+}

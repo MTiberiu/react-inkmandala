@@ -4,11 +4,11 @@ import { useParams } from 'react-router-dom';
 import { usePrint } from '../contexts/PrintContext';
 import './Page.css';
 import onepx from '../assets/1px.png'; // 
-import CanvasWrapper from "../components/colorapp/CanvasWrapper";
-import ControlsPanel from "../components/colorapp/ControlsPanel"
+import CanvasWrapper from '../components/colorapp/CanvasWrapper';
+import ControlsPanel from '../components/colorapp/ControlsPanel';
 import Modal from '../components/Modal';
 import useAppStore from '../stores/appStore';
-
+import RightSidebar from "../components/colorapp/RightSidebar";
 
 
 const Page: React.FC = () => {
@@ -128,13 +128,16 @@ const requestClear = useAppStore(state => state.requestClear);
       setPaintMode={setPaintMode}
       requestClear={requestClear} 
       />
-      <div style={{ width: '100%', height: '100%' }}>
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', height: 'calc(100% - 80px)' }}> {/* Ajustează height dacă ControlsPanel are altă înălțime */}
+      <div style={{ flex: 1, height: '100%', overflow: 'hidden', position: 'relative' }}> 
       <CanvasWrapper 
       imageUrl={page.featured_image_sizes["1536x1536"]}
       activeEffect={activeEffect}
       particlesEnabled={particlesEnabled}
       selectedPaintMode={selectedPaintMode}
       />
+      </div>
+      <RightSidebar />
     </div>
       
       </Modal>
