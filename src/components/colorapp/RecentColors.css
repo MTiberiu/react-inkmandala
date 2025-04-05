@@ -1,0 +1,66 @@
+/* src/components/colorapp/RecentColors.css */
+.recent-colors-section {
+  padding: 0.5rem 1rem 0.8rem 1rem; /* Adaugă padding unde e randat */
+  border-bottom: 1px solid #e0e0e0; /* Linie separatoare sub secțiune */
+  margin-bottom: 0.5rem; /* Spațiu sub secțiune */
+  background-color: #fdfdfd; /* Un fundal ușor diferit (opțional) */
+}
+
+.recent-colors-section h6 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 0.8em;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.recent-swatches-container {
+  display: flex;
+  flex-wrap: wrap; /* Permite trecerea pe rândul următor */
+  gap: 6px; /* Spațiu mai mic între swatches recente */
+}
+
+.recent-color-swatch {
+  width: 22px;  /* Puțin mai mici decât cele din paletă */
+  height: 22px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  position: relative; /* Necesar pentru ::before dacă vrem efecte */
+}
+
+.recent-color-swatch:hover {
+  transform: scale(1.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  z-index: 2; /* Să vină deasupra celorlalte la hover */
+}
+
+.recent-color-swatch.active {
+  border: 2px solid #007bff;
+  transform: scale(1.1);
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.4);
+}
+
+/* Stiluri Dark Mode (opțional) */
+@media (prefers-color-scheme: dark) {
+   .recent-colors-section {
+      background-color: #3a3a3a; /* Ajustează la tema dark */
+      border-bottom-color: #555;
+   }
+   .recent-colors-section h6 {
+      color: #bbb;
+   }
+   .recent-color-swatch {
+      border-color: #555;
+      box-shadow: 0 1px 1px rgba(255, 255, 255, 0.1);
+   }
+    .recent-color-swatch.active {
+        border-color: #58a6ff;
+        box-shadow: 0 0 4px rgba(88, 166, 255, 0.4);
+    }
+}

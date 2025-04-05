@@ -6,6 +6,7 @@ import './Page.css';
 import onepx from '../assets/1px.png'; // 
 import CanvasWrapper from '../components/colorapp/CanvasWrapper';
 import ControlsPanel from '../components/colorapp/ControlsPanel';
+import RecentColors from "../components/colorapp/RecentColors"
 import Modal from '../components/Modal';
 import useAppStore from '../stores/appStore';
 import RightSidebar from "../components/colorapp/RightSidebar";
@@ -139,7 +140,7 @@ const requestClear = useAppStore(state => state.requestClear);
       </div>
       <RightSidebar />
     </div>
-      
+    <RecentColors />
       </Modal>
       )}
     </>

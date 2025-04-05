@@ -21,6 +21,9 @@ export default function usePaintInteraction(
   const stopTimerRef = useRef(null);
   const isDrawingRef = useRef(false); // Stare pentru a urmări dacă desenăm
   const selectedColor = useAppStore((state) => state.selectedColor);
+  // ++ Importă acțiunea nouă ++
+  const addRecentColor = useAppStore((state) => state.addRecentColor);
+  // --------------------------
   // Funcția de Raycasting (rămâne la fel)
   const handleRaycast = useCallback((event) => {
     if (!meshRef.current || !gl || !camera || !canvas) return null;
@@ -82,7 +85,10 @@ export default function usePaintInteraction(
            brushSize,
            rgbColor // Folosește culoarea convertită
         );
-        // if(onColorShift) onColorShift(strokeData.intersectionPoint.x, strokeData.intersectionPoint.y, rgbColor); // Poți pasa rgbColor dacă e nevoie
+        // ++ Adaugă culoarea la recente după desenare ++
+        addRecentColor(selectedColor);
+        // --------------------------------------------
+        // if(onColorShift) onColorShift(strokeData.intersectionPoint.x, strokeData.intersectionPoint.y, rgbColor);
       }
     };
 
@@ -105,6 +111,10 @@ export default function usePaintInteraction(
         if(onColorShift) onColorShift(clickData.intersectionPoint.x, clickData.intersectionPoint.y, rgbColor);
         // Pasează datele geometrice și culoarea convertită către trigger
         onDirectFillTrigger({ ...clickData, rgb: rgbColor });
+        // ++ Adaugă culoarea la recente după fill direct ++
+        addRecentColor(selectedColor);
+        // ---------------
+
       }
     };
     const handleAnimatedPointerDown = (event) => {
@@ -194,6 +204,6 @@ export default function usePaintInteraction(
     isReady, gl, camera, meshRef, canvas, selectedPaintMode,
          onColorShift, onDirectFillTrigger, onAnimatedFillTrigger,
          handleRaycast, sharedImageDataRef, texture, context,
-         selectedColor // Adăugat sharedImageDataRef, texture
+         selectedColor, addRecentColor // Adăugat sharedImageDataRef, texture
   ]); // Asigură-te că ai toate dependențele corecte
 } // Sfârșitul hook-ului usePaintInteraction
