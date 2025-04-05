@@ -1,10 +1,10 @@
 // src/hooks/usePaintInteraction.js
 import { useEffect, useRef, useCallback } from 'react';
-import { hexToRgb, COLORS } from '../utils/colorUtils'; // [source: 563-565]
+import useAppStore from '../stores/appStore';
 import { Raycaster, Vector2 } from 'three';
 // Importă noua funcție de desenare
 import { performDrawStroke } from '../features/coloring/drawUtils'; // Ajustează calea dacă e nevoie
-
+import { hexToRgb } from '../utils/colorUtils';
 export default function usePaintInteraction(
   isReady, gl, camera, meshRef, canvas,
   selectedPaintMode, // Prop actualizat
@@ -20,27 +20,31 @@ export default function usePaintInteraction(
   const activeHoldTaskRef = useRef(null);
   const stopTimerRef = useRef(null);
   const isDrawingRef = useRef(false); // Stare pentru a urmări dacă desenăm
-
+  const selectedColor = useAppStore((state) => state.selectedColor);
+  // ++ Importă acțiunea nouă ++
+  const addRecentColor = useAppStore((state) => state.addRecentColor);
+  // --------------------------
   // Funcția de Raycasting (rămâne la fel)
   const handleRaycast = useCallback((event) => {
-      if (!meshRef.current || !gl || !camera || !canvas) return null;
-      const domElement = gl.domElement;
-      const bounds = domElement.getBoundingClientRect();
-      const ndc = new Vector2(((event.clientX - bounds.left) / bounds.width) * 2 - 1, -((event.clientY - bounds.top) / bounds.height) * 2 + 1);
-      const raycaster = new Raycaster();
-      raycaster.setFromCamera(ndc, camera);
-      const intersects = raycaster.intersectObject(meshRef.current);
-      if (intersects.length === 0) return null;
-      const intersectionPoint = intersects[0].point;
-      const uv = intersects[0].uv;
-      if (!uv || !intersectionPoint) return null;
-      const x_canvas = uv.x * canvas.width;
-      const y_canvas = (1 - uv.y) * canvas.height;
-      const color = COLORS[Math.floor(Math.random() * COLORS.length)]; // Culoare random temporar
-      const rgb = hexToRgb(color);
-     return { x_canvas, y_canvas, rgb, intersectionPoint };
-    }, [gl, camera, meshRef, canvas, hexToRgb]); // Dependințe handleRaycast
-
+    if (!meshRef.current || !gl || !camera || !canvas) return null;
+    const domElement = gl.domElement;
+    const bounds = domElement.getBoundingClientRect();
+    const ndc = new Vector2(((event.clientX - bounds.left) / bounds.width) * 2 - 1, -((event.clientY - bounds.top) / bounds.height) * 2 + 1);
+    const raycaster = new Raycaster();
+    raycaster.setFromCamera(ndc, camera);
+    const intersects = raycaster.intersectObject(meshRef.current);
+    if (intersects.length === 0) return null;
+    const intersectionPoint = intersects[0].point;
+    const uv = intersects[0].uv;
+    if (!uv || !intersectionPoint) return null;
+    const x_canvas = uv.x * canvas.width;
+    const y_canvas = (1 - uv.y) * canvas.height;
+    // -- Eliminăm selectarea și conversia culorii de aici --
+    // const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    // const rgb = hexToRgb(color);
+    // ++ Returnăm doar datele geometrice ++
+    return { x_canvas, y_canvas, intersectionPoint };
+  }, [gl, camera, meshRef, canvas]);
   useEffect(() => {
     console.log('usePaintInteraction Effect: Running. Mode:', selectedPaintMode, 'isReady:', isReady); // <-- LOG ADAUGAT
     // Verificări inițiale (adăugat sharedImageDataRef și texture)
@@ -65,27 +69,26 @@ export default function usePaintInteraction(
     };
 
     const handleDrawPointerMove = (event) => {
-      // Desenează doar dacă isDrawingRef este true
       if (!isDrawingRef.current) return;
-      console.log('DRAW: handleDrawPointerMove (isDrawing is true)');
-       event.preventDefault();
-
-      // Obține coordonatele și culoarea
+      event.preventDefault();
       const strokeData = handleRaycast(event);
-      if (strokeData && sharedImageDataRef.current && context && texture) { // Verifică și imageData
-         const brushSize = 15; // Mărime pensulă - TODO: Fă-o configurabilă
-         // Apelează funcția de desenare
-         performDrawStroke(
-            sharedImageDataRef.current,
-            context,
-            texture, // Pasează textura
-            strokeData.x_canvas,
-            strokeData.y_canvas,
-            brushSize,
-            strokeData.rgb // Folosește culoarea determinată
-         );
-         // TODO: Poți declanșa particule aici dacă dorești, folosind onColorShift
-         // if(onColorShift) onColorShift(strokeData.intersectionPoint.x, strokeData.intersectionPoint.y, strokeData.rgb);
+      // ++ Verifică strokeData și convertește selectedColor aici ++
+      if (strokeData && sharedImageDataRef.current && context && texture) {
+        const brushSize = 15;
+        const rgbColor = hexToRgb(selectedColor); // Conversia culorii selectate
+        performDrawStroke(
+           sharedImageDataRef.current,
+           context,
+           texture,
+           strokeData.x_canvas,
+           strokeData.y_canvas,
+           brushSize,
+           rgbColor // Folosește culoarea convertită
+        );
+        // ++ Adaugă culoarea la recente după desenare ++
+        addRecentColor(selectedColor);
+        // --------------------------------------------
+        // if(onColorShift) onColorShift(strokeData.intersectionPoint.x, strokeData.intersectionPoint.y, rgbColor);
       }
     };
 
@@ -99,29 +102,38 @@ export default function usePaintInteraction(
     // --- Sfârșit Handlers DRAW ---
 
     // --- Handlers existenți (Direct, Animated, Hold) ---
-     const handleDirectClick = (event) => {
-       if (event.button !== 0) return;
-       const clickData = handleRaycast(event);
-       if (clickData) {
-          if(onColorShift) onColorShift(clickData.intersectionPoint.x, clickData.intersectionPoint.y, clickData.rgb);
-          onDirectFillTrigger(clickData); // Apelează trigger-ul specificat
-       }
-     };
+    const handleDirectClick = (event) => {
+      if (event.button !== 0) return;
+      const clickData = handleRaycast(event);
+      // ++ Verifică clickData și convertește selectedColor aici ++
+      if (clickData) {
+        const rgbColor = hexToRgb(selectedColor); // Conversia culorii selectate
+        if(onColorShift) onColorShift(clickData.intersectionPoint.x, clickData.intersectionPoint.y, rgbColor);
+        // Pasează datele geometrice și culoarea convertită către trigger
+        onDirectFillTrigger({ ...clickData, rgb: rgbColor });
+        // ++ Adaugă culoarea la recente după fill direct ++
+        addRecentColor(selectedColor);
+        // ---------------
 
-     const handleAnimatedPointerDown = (event) => {
-       if (event.button !== 0) return;
-       if (stopTimerRef.current) clearTimeout(stopTimerRef.current);
-       stopTimerRef.current = null;
-       activeHoldTaskRef.current = null;
-       const clickData = handleRaycast(event);
-       if (clickData) {
-         if(onColorShift) onColorShift(clickData.intersectionPoint.x, clickData.intersectionPoint.y, clickData.rgb);
-         const newTask = onAnimatedFillTrigger(clickData); // Apelează trigger-ul specificat
-         if (selectedPaintMode === 'HOLD_AND_RELEASE' && newTask) {
-           activeHoldTaskRef.current = newTask;
-         }
-       }
-     };
+      }
+    };
+    const handleAnimatedPointerDown = (event) => {
+      if (event.button !== 0) return;
+      if (stopTimerRef.current) clearTimeout(stopTimerRef.current);
+      stopTimerRef.current = null;
+      activeHoldTaskRef.current = null; // Resetăm task-ul hold
+      const clickData = handleRaycast(event);
+       // ++ Verifică clickData și convertește selectedColor aici ++
+      if (clickData) {
+        const rgbColor = hexToRgb(selectedColor); // Conversia culorii selectate
+        if(onColorShift) onColorShift(clickData.intersectionPoint.x, clickData.intersectionPoint.y, rgbColor);
+         // Pasează datele geometrice și culoarea convertită către trigger
+        const newTask = onAnimatedFillTrigger({ ...clickData, rgb: rgbColor });
+        if (selectedPaintMode === 'HOLD_AND_RELEASE' && newTask) {
+          activeHoldTaskRef.current = newTask;
+        }
+      }
+    };
 
      const handleHoldPointerUpLeave = () => {
         if (activeHoldTaskRef.current && !stopTimerRef.current) {
@@ -190,7 +202,8 @@ export default function usePaintInteraction(
     };
   }, [ // Lista de dependențe actualizată
     isReady, gl, camera, meshRef, canvas, selectedPaintMode,
-    onColorShift, onDirectFillTrigger, onAnimatedFillTrigger,
-    handleRaycast, sharedImageDataRef, texture, context // Adăugat sharedImageDataRef, texture
+         onColorShift, onDirectFillTrigger, onAnimatedFillTrigger,
+         handleRaycast, sharedImageDataRef, texture, context,
+         selectedColor, addRecentColor // Adăugat sharedImageDataRef, texture
   ]); // Asigură-te că ai toate dependențele corecte
 } // Sfârșitul hook-ului usePaintInteraction
