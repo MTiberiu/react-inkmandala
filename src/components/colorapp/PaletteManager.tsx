@@ -1,24 +1,25 @@
+import Modal from '../Modal';
 // src/components/colorapp/PaletteManager.tsx
 import React, { useState } from 'react'; // <-- Importă useState
 import useAppStore from '../../stores/appStore';
 import './PaletteManager.css';
 
 const PaletteManager: React.FC = () => {
-  // Citim stările și acțiunile necesare
+
   const palettes = useAppStore((state) => state.palettes);
   const activePaletteName = useAppStore((state) => state.activePaletteName);
   const setActivePaletteName = useAppStore((state) => state.setActivePaletteName);
   const selectedColor = useAppStore((state) => state.selectedColor);
   const addColorToPalette = useAppStore((state) => state.addColorToPalette);
-  // ++ Importă addPalette ++
   const addPalette = useAppStore((state) => state.addPalette);
-  // ----------------------
   const removePalette = useAppStore((state) => state.removePalette);
-  // ++ Stare locală pentru input-ul de nume paletă nouă ++
   const [newPaletteName, setNewPaletteName] = useState<string>('');
-  // -----------------------------------------------------
   const isDefaultPaletteActive = activePaletteName === 'Default'; // Flag util
   const paletteNames = Object.keys(palettes);
+
+  // ++ Stare nouă pentru vizibilitatea modalului de confirmare ++
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState<boolean>(false);
+  // 
 
   const handlePaletteChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setActivePaletteName(event.target.value);
@@ -57,13 +58,23 @@ const PaletteManager: React.FC = () => {
 const handleDeletePaletteClick = () => {
   // Dublă verificare, deși butonul ar trebui să fie dezactivat
   if (isDefaultPaletteActive) return;
-
-  // Cere confirmare
-  if (window.confirm(`Are you sure you want to delete the "${activePaletteName}" palette? This action cannot be undone.`)) {
-      removePalette(activePaletteName);
-      // Nu e nevoie să setăm activePaletteName aici, acțiunea din store o face deja.
-  }
+  setShowConfirmDeleteModal(true);
 };
+
+// ++ Handler pentru confirmarea ștergerii (din modal) ++
+const handleConfirmDelete = () => {
+  if (isDefaultPaletteActive) return; // Extra siguranță
+  removePalette(activePaletteName);
+  setShowConfirmDeleteModal(false); // Închide modalul după ștergere
+};
+// 
+
+  // ++ Handler pentru anularea ștergerii (din modal) ++
+  const handleCancelDelete = () => {
+    setShowConfirmDeleteModal(false);
+};
+// ---------------------------------------------------
+
 
   return (
     <div className="palette-manager-section">
@@ -125,6 +136,25 @@ const handleDeletePaletteClick = () => {
         </div>
       </div>
       {/* -------------------------------------- */}
+      {/* ++ Randarea condiționată a Modalului de Confirmare ++ */}
+      {showConfirmDeleteModal && (
+        <Modal onClose={handleCancelDelete}> {/* La închidere ('x') anulează */}
+          <div className="confirmation-dialog">
+            <h4>Confirm Deletion</h4>
+            <p>Are you sure you want to delete the palette named <strong>"{activePaletteName}"</strong>?</p>
+            <p>This action cannot be undone.</p>
+            <div className="confirmation-actions">
+              <button onClick={handleCancelDelete} className="button-secondary">
+                Cancel
+              </button>
+              <button onClick={handleConfirmDelete} className="button-danger">
+                Yes, Delete Palette
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+      {/* ---------------------------------------------------- */}
 
     </div>
   );
